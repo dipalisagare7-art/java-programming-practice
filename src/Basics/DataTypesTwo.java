@@ -16,6 +16,6 @@ public class DataTypesTwo {
         //declaration and initialisation
         int b = 20;
         //int - data type
-        // b - variable
+        // b - variable+
     }
 }
