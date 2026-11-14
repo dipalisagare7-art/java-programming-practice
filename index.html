@@ -1,0 +1,21 @@
+mport java.util.*;
+
+public class ShortResumeScreener {
+    public static void main(String[] args) {
+        // 1. Job keywords
+        Set<String> job = new HashSet<>(Arrays.asList("java", "spring", "git"));
+
+        // 2. Candidate skills
+        Set<String> candidate = new HashSet<>(Arrays.asList("java", "html"));
+
+        // 3. Find matching skills (Intersection)
+        Set<String> match = new HashSet<>(job);
+        match.retainAll(candidate);
+
+        // 4. Calculate score
+        int score = (match.size() * 100) / job.size();
+
+        System.out.println("Match Score: " + score + "%");
+        System.out.println("Matched Keywords: " + match);
+    }
+}
