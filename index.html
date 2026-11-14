@@ -66,8 +66,10 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
     button:hover { background: #1d4ed8; }
+    button:active { background: #1e40af; }
     .result-box {
       display: none;
       margin-top: 24px;
@@ -111,7 +113,7 @@
     <label for="candidateSkills">Candidate Resume Skills / Text (comma-separated)</label>
     <textarea id="candidateSkills" rows="4" placeholder="e.g., java, html, css, git, mysql"></textarea>
 
-    <button onclick="screenResume()">Screen Resume</button>
+    <button type="button" id="screenBtn">Screen Resume</button>
 
     <div id="resultBox" class="result-box">
       <div class="score" id="scoreDisplay"></div>
@@ -125,8 +127,8 @@
         text
           .toLowerCase()
           .split(/[\s,;|]+/)
-          .map(s => s.trim())
-          .filter(s => s.length > 0)
+          .map(function(s) { return s.trim(); })
+          .filter(function(s) { return s.length > 0; })
       );
     }
 
@@ -143,8 +145,12 @@
       }
 
       // Set Intersection (Equivalent to HashSet retainAll in Java)
-      const matched = [...jobSet].filter(skill => candidateSet.has(skill));
-      const missing = [...jobSet].filter(skill => !candidateSet.has(skill));
+      const matched = Array.from(jobSet).filter(function(skill) {
+        return candidateSet.has(skill);
+      });
+      const missing = Array.from(jobSet).filter(function(skill) {
+        return !candidateSet.has(skill);
+      });
 
       const score = Math.round((matched.length * 100) / jobSet.size);
 
@@ -157,13 +163,14 @@
         statusBadge = '<span class="badge low">Not Shortlisted</span>';
       }
 
-      document.getElementById('scoreDisplay').innerHTML = Match Score: ${score}% ${statusBadge};
-      document.getElementById('detailsDisplay').innerHTML = `
-        <strong>Matched Keywords (${matched.length}/${jobSet.size}):</strong> ${matched.length ? matched.join(', ') : 'None'}<br>
-        <strong>Missing Keywords:</strong> ${missing.length ? missing.join(', ') : 'None'}
-      `;
+      document.getElementById('scoreDisplay').innerHTML = 'Match Score: ' + score + '% ' + statusBadge;
+      document.getElementById('detailsDisplay').innerHTML =
+        '<strong>Matched Keywords (' + matched.length + '/' + jobSet.size + '):</strong> ' + (matched.length ? matched.join(', ') : 'None') + '<br>' +
+        '<strong>Missing Keywords:</strong> ' + (missing.length ? missing.join(', ') : 'None');
       document.getElementById('resultBox').style.display = 'block';
     }
+
+    document.getElementById('screenBtn').addEventListener('click', screenResume);
   </script>
 </body>
 </html>
