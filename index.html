@@ -1,21 +1,169 @@
-mport java.util.*;
-
-public class ShortResumeScreener {
-    public static void main(String[] args) {
-        // 1. Job keywords
-        Set<String> job = new HashSet<>(Arrays.asList("java", "spring", "git"));
-
-        // 2. Candidate skills
-        Set<String> candidate = new HashSet<>(Arrays.asList("java", "html"));
-
-        // 3. Find matching skills (Intersection)
-        Set<String> match = new HashSet<>(job);
-        match.retainAll(candidate);
-
-        // 4. Calculate score
-        int score = (match.size() * 100) / job.size();
-
-        System.out.println("Match Score: " + score + "%");
-        System.out.println("Matched Keywords: " + match);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Based Resume Screening System</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body {
+      background: #f4f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
     }
-}
+    .card {
+      background: #ffffff;
+      max-width: 520px;
+      width: 100%;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      color: #1e293b;
+      text-align: center;
+    }
+    p.subtitle {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+    }
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      resize: vertical;
+      margin-bottom: 18px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+    button {
+      width: 100%;
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 13px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #1d4ed8; }
+    .result-box {
+      display: none;
+      margin-top: 24px;
+      padding: 18px;
+      background: #f8fafc;
+      border-left: 5px solid #2563eb;
+      border-radius: 8px;
+    }
+    .score {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .details {
+      font-size: 0.92rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .high { background: #dcfce7; color: #166534; }
+    .medium { background: #fef9c3; color: #854d0e; }
+    .low { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>AI-Based Resume Screening</h1>
+    <p class="subtitle">Enter required job skills and candidate resume skills below</p>
+
+    <label for="jobSkills">Required Job Keywords (comma-separated)</label>
+    <textarea id="jobSkills" rows="3" placeholder="e.g., java, spring, git, sql, rest api"></textarea>
+
+    <label for="candidateSkills">Candidate Resume Skills / Text (comma-separated)</label>
+    <textarea id="candidateSkills" rows="4" placeholder="e.g., java, html, css, git, mysql"></textarea>
+
+    <button onclick="screenResume()">Screen Resume</button>
+
+    <div id="resultBox" class="result-box">
+      <div class="score" id="scoreDisplay"></div>
+      <div class="details" id="detailsDisplay"></div>
+    </div>
+  </div>
+
+  <script>
+    function parseSkills(text) {
+      return new Set(
+        text
+          .toLowerCase()
+          .split(/[\s,;|]+/)
+          .map(s => s.trim())
+          .filter(s => s.length > 0)
+      );
+    }
+
+    function screenResume() {
+      const jobText = document.getElementById('jobSkills').value;
+      const candidateText = document.getElementById('candidateSkills').value;
+
+      const jobSet = parseSkills(jobText);
+      const candidateSet = parseSkills(candidateText);
+
+      if (jobSet.size === 0) {
+        alert("Please enter at least one required job keyword.");
+        return;
+      }
+
+      // Set Intersection (Equivalent to HashSet retainAll in Java)
+      const matched = [...jobSet].filter(skill => candidateSet.has(skill));
+      const missing = [...jobSet].filter(skill => !candidateSet.has(skill));
+
+      const score = Math.round((matched.length * 100) / jobSet.size);
+
+      let statusBadge = "";
+      if (score >= 70) {
+        statusBadge = '<span class="badge high">Shortlisted</span>';
+      } else if (score >= 40) {
+        statusBadge = '<span class="badge medium">Under Review</span>';
+      } else {
+        statusBadge = '<span class="badge low">Not Shortlisted</span>';
+      }
+
+      document.getElementById('scoreDisplay').innerHTML = Match Score: ${score}% ${statusBadge};
+      document.getElementById('detailsDisplay').innerHTML = `
+        <strong>Matched Keywords (${matched.length}/${jobSet.size}):</strong> ${matched.length ? matched.join(', ') : 'None'}<br>
+        <strong>Missing Keywords:</strong> ${missing.length ? missing.join(', ') : 'None'}
+      `;
+      document.getElementById('resultBox').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
